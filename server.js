@@ -1,4 +1,30 @@
 require('dotenv').config();
+
+//upgrade definitions
+const upgradeDefinitions = {
+  fire_rate: {
+    displayName: "Fire Rate",
+    baseCost: 100,
+    costGrowth: 1.5,
+    type: "coin" // instant upgrade
+  },
+  coin_boost: {
+    displayName: "Coin Multiplier",
+    baseCost: 150,
+    costGrowth: 1.75,
+    type: "science",
+    duration: 86400000 // 1 day in ms
+  },
+  auto_clicker: {
+    displayName: "Auto Collector",
+    baseCost: 200,
+    costGrowth: 2.0,
+    type: "science",
+    duration: 43200000 // 12 hours
+  }
+};
+
+//variables
 const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
