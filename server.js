@@ -264,6 +264,24 @@ app.post('/profile/science/claim', async (req, res) => {
   }
 });
 
+// Delete Profile Endpoint
+app.delete('/profile', async (req, res) => {
+  const authHeader = req.headers.authorization;
+  if (!authHeader) return res.status(401).json({ error: 'Missing token' });
+
+  const token = authHeader.split(' ')[1];
+  try {
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    const user = await User.findByIdAndDelete(decoded.userId);
+    if (!user) return res.status(404).json({ error: 'User not found' });
+
+    res.json({ message: 'Account deleted successfully' });
+  } catch (err) {
+    console.error("❌ Account deletion error:", err);
+    res.status(401).json({ error: 'Invalid token or request' });
+  }
+});
+
 // Start Server
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => console.log(`🚀 Server running on port ${PORT}`));
