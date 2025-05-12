@@ -11,19 +11,10 @@ const UserSchema = new mongoose.Schema({
     required: true
   },
 
-  // 💰 Currencies
-  coins: {
-    type: Number,
-    default: 0
-  },
-  bills: {
-    type: Number,
-    default: 0
-  },
-  bars: {
-    type: Number,
-    default: 0
-  },
+  // 🪙 Currencies
+  Cu: { type: Number, default: 0 }, // Copper (replaces coins)
+  Ag: { type: Number, default: 0 }, // Silver (replaces bills)
+  Au: { type: Number, default: 0 }, // Gold (replaces bars)
 
   // ⚡ Instant upgrades (scaling)
   upgrades: {
@@ -55,6 +46,11 @@ const UserSchema = new mongoose.Schema({
   },
 
   totalPlayTime: {
+    type: Number,
+    default: 0
+  },
+
+  prestigeLevel: {
     type: Number,
     default: 0
   }
