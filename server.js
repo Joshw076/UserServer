@@ -80,6 +80,7 @@ app.post('/login', async (req, res) => {
   }
 });
 
+//Profile Endpoint
 app.get('/profile', async (req, res) => {
   const authHeader = req.headers.authorization;
   if (!authHeader) return res.status(401).json({ error: 'Missing token' });
@@ -88,7 +89,7 @@ app.get('/profile', async (req, res) => {
   try {
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
     const user = await User.findById(decoded.userId);
-    if (!user) return res.status(404).json({ error: 'User not found' });
+    if (!user || user.isDeleted) return res.status(404).json({ error: 'User not found' });
 
     const now = new Date();
     user.lastLogin = now;
@@ -97,7 +98,7 @@ app.get('/profile', async (req, res) => {
     if (isNewDay(user.lastAdWatchedAt)) {
       user.adsWatchedToday = 0;
     }
-
+    
     // 🎁 Daily login reward logic
     if (!user.lastDailyClaim || isNewDay(user.lastDailyClaim)) {
       const yesterday = new Date(now);
@@ -110,7 +111,7 @@ app.get('/profile', async (req, res) => {
       }
 
       user.lastDailyClaim = now;
-      user.Cu += 100; // Reward Cu on login
+      user.Cu += 100;
     }
 
     await user.save();
@@ -383,7 +384,7 @@ app.post('/profile/science/claim', async (req, res) => {
   }
 });
 
-// Delete Profile Endpoint
+// Soft Delete Profile Endpoint
 app.delete('/profile', async (req, res) => {
   const authHeader = req.headers.authorization;
   if (!authHeader) return res.status(401).json({ error: 'Missing token' });
@@ -391,12 +392,18 @@ app.delete('/profile', async (req, res) => {
   const token = authHeader.split(' ')[1];
   try {
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
-    const user = await User.findByIdAndDelete(decoded.userId);
+    const user = await User.findById(decoded.userId);
     if (!user) return res.status(404).json({ error: 'User not found' });
 
-    res.json({ message: 'Account deleted successfully' });
+    user.isDeleted = true;
+    user.email = null;
+    user.passwordHash = null;
+    user.username = `deleted_${user._id}`;
+    await user.save();
+
+    res.json({ message: 'Account marked as deleted successfully' });
   } catch (err) {
-    console.error("❌ Account deletion error:", err);
+    console.error("❌ Account soft-delete error:", err);
     res.status(401).json({ error: 'Invalid token or request' });
   }
 });

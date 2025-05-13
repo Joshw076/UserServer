@@ -76,6 +76,7 @@ const UserSchema = new mongoose.Schema({
     type: Date,
     default: Date.now
   },
+  isDeleted: { type: Boolean, default: false },
   lastLogin: { type: Date },
   platform: { type: String, enum: ['android', 'ios', 'web'], default: 'android' },
   language: { type: String, default: 'en' },
